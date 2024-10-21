@@ -5,9 +5,7 @@ orbs:
 
 jobs:
   build:
-    executor: 
-      name: android/android
-      working_directory: ~/project
+    executor: android/android
     environment:
       # Set the JAVA_HOME environment variable to point to JDK 17
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
