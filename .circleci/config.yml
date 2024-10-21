@@ -1,26 +1,38 @@
 version: 2.1
- 
+
 orbs:
   android: circleci/android@0.2.1
- 
+
 jobs:
   build:
-    executor: android/android
+    executor: 
+      name: android/android
+      working_directory: ~/project
+    environment:
+      # Set the JAVA_HOME environment variable to point to JDK 17
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     steps:
       - checkout
       - restore_cache:
-          key: android-orb-v1-
+          key: android-orb-v1-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
       - run:
+          name: Set up JDK 17
+          command: |
+            sudo apt-get update
+            sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            java -version
+      - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
       - save_cache:
-          key: 'android-orb-v1-{{ epoch }}'
+          key: 'android-orb-v1-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}'
           paths:
-            - ~/.android/build-cache
-            - ~/.android/cache
+            - ~/.gradle/caches/
+            - ~/.gradle/wrapper/
       - run:
           name: Run Build
           command: ./gradlew build
